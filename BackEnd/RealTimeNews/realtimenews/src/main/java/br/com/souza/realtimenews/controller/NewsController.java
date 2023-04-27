@@ -17,11 +17,10 @@ public class NewsController {
 
     public List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
-    // method for client subscription
     @CrossOrigin
     @GetMapping(value = "/subscribe", consumes = MediaType.ALL_VALUE)
     public SseEmitter subscribe(){
-        SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
+        SseEmitter sseEmitter = new SseEmitter(30_000L);
 
         try {
             sseEmitter.send(SseEmitter.event().name("INIT"));
@@ -29,14 +28,26 @@ public class NewsController {
             e.printStackTrace();
         }
 
-        sseEmitter.onCompletion(() -> emitters.remove(sseEmitter));
+        sseEmitter.onCompletion(() -> {
+            emitters.remove(sseEmitter);
+            System.out.println("completion");
+        });
+        sseEmitter.onTimeout(() -> {
+            sseEmitter.complete();
+            emitters.remove(sseEmitter);
+            System.out.println("timeout");
+        });
+        sseEmitter.onError((e) -> {
+            sseEmitter.completeWithError(e);
+            emitters.remove(sseEmitter);
+            System.out.println("onerror");
+        });
         emitters.add(sseEmitter);
 
         return sseEmitter;
     }
 
-    // method for dispatching events to all clients
-    @PostMapping(value = "/dispatchEvent")
+    @PostMapping(value = "/new")
     public void dispatchEventToClients(@RequestParam("title") String title, @RequestParam("text") String text){
 
         String eventFormatted = new JSONObject()
@@ -47,6 +58,7 @@ public class NewsController {
         for (SseEmitter emitter : emitters){
             try {
                 emitter.send(SseEmitter.event().name("latestNews").data(eventFormatted));
+                emitter.complete();
             } catch (IOException e) {
                 emitters.remove(emitter);
             }
