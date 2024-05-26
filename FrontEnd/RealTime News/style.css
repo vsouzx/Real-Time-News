@@ -1,0 +1,44 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+h1{
+    width: 100vw;
+    height: 5vh;
+    background: rgb(99, 99, 99);
+    color: white;
+    text-align: center;
+}
+
+.feed{
+    overflow-y: scroll;
+    width: 50vw;
+    height: 80vh;
+    text-align: center;
+    border: 3px solid rgb(99, 99, 99);
+}
+
+section{
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#notifications{
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.new-follow{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    background-color: rgba(83, 136, 83, 0.671);
+}
+
+.new-like{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    background-color: rgba(69, 69, 173, 0.534);
+}
